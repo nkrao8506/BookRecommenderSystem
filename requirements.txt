@@ -1,0 +1,9 @@
+django>=4.2
+djangorestframework
+django-cors-headers
+numpy
+pandas
+scikit-learn
+gunicorn
+whitenoise
+python-dotenv

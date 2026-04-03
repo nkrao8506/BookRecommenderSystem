@@ -1,0 +1,58 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Static files
+staticfiles/
+
+# Media uploads
+uploads/
+media/
+
+# Pickle files (old ML models)
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test.txt
+
+# Backup files
+*.backup
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Node modules
+node_modules/
+
+# Progress tracking
+progress.md
