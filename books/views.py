@@ -19,13 +19,20 @@ similarity_score = None
 def load_models():
     global popular_df, pt, books, similarity_score
     if popular_df is None:
-        popular_df = pickle.load(open(os.path.join(BASE_DIR, "popular.pkl"), "rb"))
-        pt = pickle.load(open(os.path.join(BASE_DIR, "pt.pkl"), "rb"))
-        books = pickle.load(open(os.path.join(BASE_DIR, "books.pkl"), "rb"))
-        similarity_score = pickle.load(
-            open(os.path.join(BASE_DIR, "similarity_score.pkl"), "rb")
-        )
+        try:
+            popular_df = pickle.load(open(os.path.join(BASE_DIR, "popular.pkl"), "rb"))
+            pt = pickle.load(open(os.path.join(BASE_DIR, "pt.pkl"), "rb"))
+            books = pickle.load(open(os.path.join(BASE_DIR, "books.pkl"), "rb"))
+            similarity_score = pickle.load(
+                open(os.path.join(BASE_DIR, "similarity_score.pkl"), "rb")
+            )
+        except Exception as e:
+            print(f"Error loading models: {e}")
+            popular_df, pt, books, similarity_score = None, None, None, None
     return popular_df, pt, books, similarity_score
+
+# Load models at application startup
+load_models()
 
 
 def index(request):

@@ -7,3 +7,4 @@ scikit-learn
 gunicorn
 whitenoise
 python-dotenv
+dj-database-url
