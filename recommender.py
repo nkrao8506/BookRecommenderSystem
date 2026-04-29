@@ -1,7 +1,6 @@
 import os
 import json
 import requests
-from typing import List, Dict, Any
 from knowledge_base import KnowledgeBase, Book
 
 class OpenRouterClient:
@@ -43,7 +42,7 @@ class LLMRecommender:
         self.kb = kb
         self.llm = llm_client
 
-    def recommend_for_user(self, user_id: str, n: int = 10) -> List[Dict]:
+    def recommend_for_user(self, user_id: str, n: int = 10) -> list[dict]:
         profile = self.kb.get_user_profile(user_id)
         if not profile.interactions:
             return self._recommend_popular(n)
@@ -74,7 +73,7 @@ class LLMRecommender:
         except:
             return []
 
-    def recommend_from_free_text(self, preference_text: str, n: int = 10) -> List[Dict]:
+    def recommend_from_free_text(self, preference_text: str, n: int = 10) -> list[dict]:
         candidates = self.kb.search_books(limit=100)
         
         system_prompt = """
@@ -97,7 +96,7 @@ class LLMRecommender:
         except:
             return []
 
-    def recommend_similar_to_book(self, book_id: str, n: int = 10) -> List[Dict]:
+    def recommend_similar_to_book(self, book_id: str, n: int = 10) -> list[dict]:
         book = self.kb.get_book(book_id)
         if not book:
             return []
@@ -124,7 +123,7 @@ class LLMRecommender:
         except:
             return []
 
-    def _recommend_popular(self, n: int = 10) -> List[Dict]:
+    def _recommend_popular(self, n: int = 10) -> list[dict]:
         # Fallback
         books = self.kb.search_books(limit=n)
         return [{"book_id": b.id, "title": b.title, "rationale": "Popular book"} for b in books]

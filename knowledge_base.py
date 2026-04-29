@@ -1,5 +1,4 @@
 import json
-from typing import List, Dict, Optional, Any
 from pydantic import BaseModel
 import os
 import sqlite3
@@ -8,21 +7,21 @@ class Book(BaseModel):
     id: str
     title: str
     authors: str
-    year: Optional[str] = None
-    publisher: Optional[str] = None
-    image_url: Optional[str] = None
-    description: Optional[str] = None
-    genres: Optional[List[str]] = None
+    year: str | None = None
+    publisher: str | None = None
+    image_url: str | None = None
+    description: str | None = None
+    genres: list[str] | None = None
 
 class Interaction(BaseModel):
     user_id: str
     book_id: str
     rating: float
-    review_text: Optional[str] = None
+    review_text: str | None = None
 
 class UserProfile(BaseModel):
     user_id: str
-    interactions: List[Interaction]
+    interactions: list[Interaction]
 
 class KnowledgeBase:
     def __init__(self, db_path: str = "knowledge_base.db"):
@@ -58,7 +57,7 @@ class KnowledgeBase:
             """)
             conn.commit()
 
-    def get_book(self, book_id: str) -> Optional[Book]:
+    def get_book(self, book_id: str) -> Book | None:
         with self._get_conn() as conn:
             cursor = conn.execute("SELECT * FROM books WHERE id = ?", (book_id,))
             row = cursor.fetchone()
@@ -98,7 +97,7 @@ class KnowledgeBase:
             ]
         return UserProfile(user_id=user_id, interactions=interactions)
 
-    def search_books(self, query: str = None, limit: int = 50) -> List[Book]:
+    def search_books(self, query: str | None = None, limit: int = 50) -> list[Book]:
         # Simple exact text search for now, could use embeddings later
         with self._get_conn() as conn:
             if query:

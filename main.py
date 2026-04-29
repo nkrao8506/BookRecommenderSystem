@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
 
 from knowledge_base import KnowledgeBase, Book, Interaction
 from recommender import LLMRecommender, OpenRouterClient
@@ -19,7 +18,7 @@ class InteractionRequest(BaseModel):
     user_id: str
     book_id: str
     rating: float
-    review_text: Optional[str] = None
+    review_text: str | None = None
 
 @app.get("/books/popular")
 def get_popular_books(n: int = 10):
