@@ -1,44 +1,54 @@
-import os
 import json
+import os
+
 import requests
 from dotenv import load_dotenv
-from knowledge_base import KnowledgeBase, Book
+
+from knowledge_base import Book, KnowledgeBase
 
 load_dotenv()
 
+
 class OpenRouterClient:
-    def __init__(self, api_key: str = None, model: str = "anthropic/claude-3-haiku"):
+    def __init__(
+        self,
+        api_key: str = None,
+        model: str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    ):
         self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         self.model = model
         self.base_url = "https://openrouter.ai/api/v1/chat/completions"
         if not self.api_key:
-             print("Warning: OPENROUTER_API_KEY not set")
+            print("Warning: OPENROUTER_API_KEY not set")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "HTTP-Referer": "http://localhost:8000",
             "X-Title": "Book Recommender System",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": user_prompt},
             ],
-            "response_format": {"type": "json_object"}
+            "response_format": {"type": "json_object"},
         }
-        
+
         try:
             response = requests.post(self.base_url, headers=headers, json=payload)
             response.raise_for_status()
-            return response.json()['choices'][0]['message']['content']
+            content = response.json()["choices"][0]["message"]["content"]
+            print(f"DEBUG LLM Raw Output: {content}")
+            return content
         except Exception as e:
             print(f"Error calling OpenRouter: {e}")
-            if hasattr(response, 'text'):
-                 print(f"Response: {response.text}")
+            if 'response' in locals() and hasattr(response, "text"):
+                print(f"Response Body: {response.text}")
             return "{}"
+
 
 class LLMRecommender:
     def __init__(self, kb: KnowledgeBase, llm_client: OpenRouterClient):
@@ -52,8 +62,8 @@ class LLMRecommender:
 
         # Basic retrieve: just get recent books user liked + some candidates
         # In a real system, use embeddings here
-        candidates = self.kb.search_books(limit=100) 
-        
+        candidates = self.kb.search_books(limit=100)
+
         system_prompt = """
         You are an expert book recommender system. Given a user's reading history and a list of candidate books,
         recommend the best books for them. Return ONLY valid JSON matching this schema:
@@ -64,21 +74,32 @@ class LLMRecommender:
         }
         """
 
-        user_history = [{"book_id": i.book_id, "rating": i.rating} for i in profile.interactions]
-        candidates_json = [{"id": c.id, "title": c.title, "authors": c.authors} for c in candidates]
-        
+        user_history = [
+            {"book_id": i.book_id, "rating": i.rating} for i in profile.interactions
+        ]
+        candidates_json = [
+            {"id": c.id, "title": c.title, "authors": c.authors} for c in candidates
+        ]
+
         user_prompt = f"User History:\n{json.dumps(user_history)}\n\nCandidates:\n{json.dumps(candidates_json)}\n\nProvide {n} recommendations."
 
         response_str = self.llm.generate(system_prompt, user_prompt)
         try:
+            # Handle markdown JSON wrapping if LLM returns it
+            if response_str.startswith("```json"):
+                response_str = response_str.split("```json")[1].rsplit("```", 1)[0].strip()
+            elif response_str.startswith("```"):
+                response_str = response_str.split("```")[1].rsplit("```", 1)[0].strip()
+
             result = json.loads(response_str)
             return result.get("recommendations", [])
-        except:
+        except Exception as e:
+            print(f"Error parsing JSON for recommend_for_user: {e}\nResponse str: {response_str}")
             return []
 
     def recommend_from_free_text(self, preference_text: str, n: int = 10) -> list[dict]:
         candidates = self.kb.search_books(limit=100)
-        
+
         system_prompt = """
         You are an expert book recommender system. Given a user's free text preference and a list of candidate books,
         recommend the best books for them. Return ONLY valid JSON matching this schema:
@@ -88,24 +109,33 @@ class LLMRecommender:
           ]
         }
         """
-        
-        candidates_json = [{"id": c.id, "title": c.title, "authors": c.authors} for c in candidates]
+
+        candidates_json = [
+            {"id": c.id, "title": c.title, "authors": c.authors} for c in candidates
+        ]
         user_prompt = f"Preferences:\n{preference_text}\n\nCandidates:\n{json.dumps(candidates_json)}\n\nProvide {n} recommendations."
 
         response_str = self.llm.generate(system_prompt, user_prompt)
         try:
+            # Handle markdown JSON wrapping if LLM returns it
+            if response_str.startswith("```json"):
+                response_str = response_str.split("```json")[1].rsplit("```", 1)[0].strip()
+            elif response_str.startswith("```"):
+                response_str = response_str.split("```")[1].rsplit("```", 1)[0].strip()
+
             result = json.loads(response_str)
             return result.get("recommendations", [])
-        except:
+        except Exception as e:
+            print(f"Error parsing JSON for recommend_from_free_text: {e}\nResponse str: {response_str}")
             return []
 
     def recommend_similar_to_book(self, book_id: str, n: int = 10) -> list[dict]:
         book = self.kb.get_book(book_id)
         if not book:
             return []
-            
+
         candidates = self.kb.search_books(limit=100)
-        
+
         system_prompt = """
         You are an expert book recommender system. Given a target book and a list of candidate books,
         recommend the most similar books. Return ONLY valid JSON matching this schema:
@@ -115,18 +145,30 @@ class LLMRecommender:
           ]
         }
         """
-        
-        candidates_json = [{"id": c.id, "title": c.title, "authors": c.authors} for c in candidates]
+
+        candidates_json = [
+            {"id": c.id, "title": c.title, "authors": c.authors} for c in candidates
+        ]
         user_prompt = f"Target Book:\n{book.json()}\n\nCandidates:\n{json.dumps(candidates_json)}\n\nProvide {n} similar books."
 
         response_str = self.llm.generate(system_prompt, user_prompt)
         try:
+            # Handle markdown JSON wrapping if LLM returns it
+            if response_str.startswith("```json"):
+                response_str = response_str.split("```json")[1].rsplit("```", 1)[0].strip()
+            elif response_str.startswith("```"):
+                response_str = response_str.split("```")[1].rsplit("```", 1)[0].strip()
+                
             result = json.loads(response_str)
             return result.get("recommendations", [])
-        except:
+        except Exception as e:
+            print(f"Error parsing JSON for recommend_similar_to_book: {e}\nResponse str: {response_str}")
             return []
 
     def _recommend_popular(self, n: int = 10) -> list[dict]:
         # Fallback
         books = self.kb.search_books(limit=n)
-        return [{"book_id": b.id, "title": b.title, "rationale": "Popular book"} for b in books]
+        return [
+            {"book_id": b.id, "title": b.title, "rationale": "Popular book"}
+            for b in books
+        ]
