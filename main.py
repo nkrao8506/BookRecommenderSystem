@@ -6,6 +6,10 @@ from recommender import LLMRecommender, OpenRouterClient
 
 app = FastAPI(title="LLM Book Recommender API")
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the LLM Book Recommender API. Visit /docs for the API documentation."}
+
 kb = KnowledgeBase()
 llm_client = OpenRouterClient()
 recommender = LLMRecommender(kb, llm_client)
