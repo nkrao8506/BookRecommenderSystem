@@ -1,10 +1,4 @@
-django>=4.2
-djangorestframework
-django-cors-headers
-numpy
-pandas
-scikit-learn
-gunicorn
-whitenoise
-python-dotenv
-dj-database-url
+fastapi
+uvicorn
+pydantic
+requests
