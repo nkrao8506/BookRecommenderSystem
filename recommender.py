@@ -1,7 +1,10 @@
 import os
 import json
 import requests
+from dotenv import load_dotenv
 from knowledge_base import KnowledgeBase, Book
+
+load_dotenv()
 
 class OpenRouterClient:
     def __init__(self, api_key: str = None, model: str = "anthropic/claude-3-haiku"):
