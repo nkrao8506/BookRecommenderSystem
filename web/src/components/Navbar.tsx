@@ -3,42 +3,14 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import LoginModal from './LoginModal';
 
 const navItems = [
   { name: 'Home', href: '/' },
   { name: 'Discover', href: '/recommend' },
-  { name: 'Add Book', href: '/upload' },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('http://localhost:8000/api/auth/profile/', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.user) {
-          setUser(data.user);
-        }
-      })
-      .catch(console.error);
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
 
   return (
     <>
@@ -85,29 +57,9 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            {user ? (
-              <div className="flex items-center gap-4 ml-4 pl-4 border-l border-zinc-200 dark:border-zinc-800">
-                <Link href="/history" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">History</Link>
-                <span className="text-sm font-medium text-violet-600 dark:text-violet-400">{user.username}</span>
-                <button onClick={handleLogout} className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">Logout</button>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setIsLoginOpen(true)}
-                className="ml-4 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-100 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all shadow-sm"
-              >
-                Login
-              </button>
-            )}
           </div>
         </div>
       </motion.nav>
-
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)} 
-        onLogin={(u) => setUser(u)} 
-      />
     </>
   );
 }

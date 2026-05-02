@@ -104,7 +104,8 @@ class KnowledgeBase:
                 like_query = f"%{query}%"
                 cursor = conn.execute("SELECT * FROM books WHERE title LIKE ? OR authors LIKE ? LIMIT ?", (like_query, like_query, limit))
             else:
-                cursor = conn.execute("SELECT * FROM books LIMIT ?", (limit,))
+                # Use a random sample to provide varying candidates for the LLM
+                cursor = conn.execute("SELECT * FROM books ORDER BY RANDOM() LIMIT ?", (limit,))
             rows = cursor.fetchall()
             return [
                  Book(

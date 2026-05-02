@@ -1,10 +1,19 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from knowledge_base import Book, Interaction, KnowledgeBase
-from recommender import LLMRecommender, OpenRouterClient
+from recommender import LLMRecommender, GoogleGeminiClient
 
 app = FastAPI(title="LLM Book Recommender API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -15,7 +24,7 @@ def read_root():
 
 
 kb = KnowledgeBase()
-llm_client = OpenRouterClient()
+llm_client = GoogleGeminiClient()
 recommender = LLMRecommender(kb, llm_client)
 
 
