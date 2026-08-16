@@ -4,6 +4,7 @@
 .env.production
 .pi
 .opencode
+.venv
 extensions/
 
 # Python
@@ -59,3 +60,8 @@ node_modules/
 
 # Progress tracking
 progress.md
+
+prompt.md
+
+# books database
+knowledge_base.db

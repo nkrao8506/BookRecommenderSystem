@@ -1,6 +1,21 @@
 import pandas as pd
 from knowledge_base import KnowledgeBase, Book, Interaction
 
+
+def _clean_cell(value):
+    if pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text if text and text.lower() != "nan" else None
+
+
+def _get_description(row):
+    for column_name in ("Book-Description", "Description", "description", "Summary", "summary"):
+        value = _clean_cell(row.get(column_name))
+        if value:
+            return value
+    return None
+
 def load_data():
     kb = KnowledgeBase()
     
@@ -10,12 +25,13 @@ def load_data():
         books_df = pd.read_csv("Books.csv", dtype=str).head(100)
         for _, row in books_df.iterrows():
             book = Book(
-                id=str(row.get('ISBN', '')),
-                title=str(row.get('Book-Title', '')),
-                authors=str(row.get('Book-Author', '')),
-                year=str(row.get('Year-Of-Publication', '')),
-                publisher=str(row.get('Publisher', '')),
-                image_url=str(row.get('Image-URL-L', ''))
+                id=_clean_cell(row.get('ISBN')) or "",
+                title=_clean_cell(row.get('Book-Title')) or "",
+                authors=_clean_cell(row.get('Book-Author')) or "",
+                year=_clean_cell(row.get('Year-Of-Publication')),
+                publisher=_clean_cell(row.get('Publisher')),
+                image_url=_clean_cell(row.get('Image-URL-L')) or _clean_cell(row.get('Image-URL-M')) or _clean_cell(row.get('Image-URL-S')),
+                description=_get_description(row)
             )
             kb.add_book(book)
         print(f"Loaded {len(books_df)} books.")
