@@ -40,37 +40,24 @@ export default function RecommendPage() {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (query.length < 2) {
-        setSuggestions([]);
-        return;
-      }
-      try {
-        const res = await fetch('http://127.0.0.1:8000/api/books/');
-        const data = await res.json();
-        const filtered = data.books.filter((book: string) =>
-          book.toLowerCase().includes(query.toLowerCase())
-        );
-        setSuggestions(filtered.slice(0, 8));
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-      }
+      // Suggestion endpoint is removed or you can integrate free-text API later.
+      // We will skip suggestions for now.
     };
-    const debounce = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounce);
+    // Removed debounce for suggestions since it's not implemented
   }, [query]);
 
   const handleGetRecommendations = async () => {
     if (!selectedBook) return;
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/recommend/', {
+      const res = await fetch('http://127.0.0.1:8000/recommendations/free-text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ book_title: selectedBook }),
+        body: JSON.stringify({ preference_text: selectedBook, n: 10 }),
       });
       const data = await res.json();
-      if (data.recommendations) {
-        setRecommendations(data.recommendations);
+      if (data) {
+        setRecommendations(data);
       }
     } catch (error) {
       console.error('Error fetching recommendations:', error);
@@ -183,12 +170,12 @@ export default function RecommendPage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {recommendations.map((book, index) => (
+                    {recommendations.map((book: any, index: number) => (
                       <BookCard
-                        key={`${book.title}-${index}`}
+                        key={`${book.book_id}-${index}`}
                         title={book.title}
-                        author={book.author}
-                        image={book.image}
+                        author={book.rationale || book.author}
+                        image={book.image || 'https://via.placeholder.com/200x300?text=No+Cover'}
                         index={index}
                       />
                     ))}
