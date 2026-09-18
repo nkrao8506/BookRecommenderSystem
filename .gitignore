@@ -2,6 +2,11 @@
 .env
 .env.local
 .env.production
+.pi
+.opencode
+.venv
+extensions/
+.python-version
 
 # Python
 __pycache__/
@@ -56,3 +61,17 @@ node_modules/
 
 # Progress tracking
 progress.md
+
+prompt.md
+
+# books database
+knowledge_base.db
+
+src/
+
+web\node_modules
+
+web/bun.lock
+
+book_vectors.ids.json
+book_vectors.index

@@ -1,0 +1,24 @@
+[project]
+name = "bookrecommendersystem"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "faiss-cpu>=1.15.1",
+    "fastapi>=0.141.1",
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+    "requests>=2.34.2",
+    "sentence-transformers>=6.0.1",
+    "uvicorn>=0.53.0",
+]
+
+[project.scripts]
+bookrecommendersystem = "bookrecommendersystem:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"

@@ -23,7 +23,7 @@ export default function BookCard({ title, author, image, votes, rating, index }:
       <div className="relative overflow-hidden rounded-2xl bg-white shadow-md transition-shadow hover:shadow-xl dark:bg-zinc-900">
         <div className="aspect-[2/3] overflow-hidden">
           <img
-            src={image}
+            src={image || 'https://via.placeholder.com/200x300?text=No+Cover'}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {

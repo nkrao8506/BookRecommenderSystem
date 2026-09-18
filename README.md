@@ -1,190 +1,105 @@
-# 📚 Book Recommender System
+# LLM-Powered Book Recommender System
 
-A full-stack book recommendation system that suggests books based on collaborative filtering. The system displays popular books and provides personalized recommendations based on user input.
+A modern, fast, and intelligent book recommendation engine that combines **semantic vector search** with **LLM-based reasoning** (a proper RAG pipeline) over an incrementally updating SQLite Knowledge Base. The backend is built using [FastAPI](https://fastapi.tiangolo.com/).
 
-## 🌟 Features
+> **Note on Frontend:** The previous Next.js frontend (in the `web/` directory) is currently undergoing a rewrite to integrate with this new LLM-powered backend. It is preserved but may not function out-of-the-box until updated.
 
-- **Top 50 Popular Books**: Displays the most popular books based on ratings and votes
-- **Book Recommendations**: Get personalized book suggestions by entering a book title
-- **Modern UI**: Clean, responsive dark-themed interface built with Bootstrap
-- **Multiple Frontends**: Flask-based web interface and Next.js modern frontend
-- **REST API**: Django backend API for data management
+---
+
+## 🚀 Features
+
+- **Semantic Retrieval:** Book descriptions are embedded locally (sentence-transformers) and indexed in a FAISS vector store, so candidate selection is driven by actual meaning instead of keyword matching or random sampling.
+- **LLM-Based Reasoning:** The retrieved candidates are handed to an LLM, which reranks them and writes a rationale for each pick — retrieval finds *what's relevant*, the LLM explains *why*.
+- **Dynamic Knowledge Base:** Stores books, users, and interactions (ratings, reviews) in a local SQLite database that grows over time.
+- **Natural Language Preferences:** Supports querying book recommendations based on free-form text input (e.g., "I want a fantasy novel with political intrigue") — the query is embedded and matched directly against the vector index.
+- **Fast & Interactive API:** Built with FastAPI, providing automatic interactive API documentation via Swagger UI.
 
 ## 🛠️ Tech Stack
 
-### Backend
-- **Flask** - Lightweight web framework for the main application
-- **Django** - Backend API framework
-- **Python** - Core programming language
-- **NumPy** - Numerical computations for similarity calculations
-- **Pickle** - Serialized ML model storage
+- **Backend:** Python 3, FastAPI, Uvicorn, Pydantic
+- **Embeddings:** sentence-transformers (`all-MiniLM-L6-v2`, local, no external API calls)
+- **Vector Store:** FAISS (`IndexFlatIP`, exact cosine similarity search)
+- **LLM Integration:** Google Gemini (`gemini-2.5-flash`) for reranking and rationale generation
+- **Database:** SQLite3 (Local Knowledge Base)
+- **Data Processing:** Pandas (for initial data seeding)
 
-### Frontend
-- **HTML/CSS** - Flask templates with Bootstrap 5
-- **Next.js 16** - Modern React framework (alternative frontend)
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Animation library
+---
 
-### Machine Learning
-- **Collaborative Filtering** - Recommendation algorithm
-- **Cosine Similarity** - Book similarity computation
+## 📦 Getting Started
 
-## 📁 Project Structure
-
-```
-BookRecommenderSystem/
-├── app.py                  # Flask application entry point
-├── manage.py               # Django management script
-├── db.sqlite3              # SQLite database
-├── Books.csv               # Books dataset
-├── Ratings.csv             # User ratings dataset
-├── Users.csv               # Users dataset
-├── books.pkl               # Processed books data
-├── popular.pkl             # Popular books data
-├── pt.pkl                  # Pivot table for recommendations
-├── similarity_score.pkl    # Pre-computed similarity scores
-├── backend/                # Django backend
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── templates/              # Flask HTML templates
-│   ├── index.html          # Home page (Top 50 books)
-│   └── recommend.html      # Recommendation page
-├── web/                    # Next.js frontend
-│   ├── src/
-│   ├── package.json
-│   └── ...
-├── model/                  # ML model
-│   └── recommender.ipynb   # Jupyter notebook for model training
-├── books/                  # Django books app
-├── migrations/             # Database migrations
-└── uploads/                # User uploads directory
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.8+
-- Node.js 18+ (for Next.js frontend)
-- pip (Python package manager)
-- npm or yarn (Node package manager)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/BookRecommenderSystem.git
-   cd BookRecommenderSystem
-   ```
-
-2. **Install Python dependencies**
-   ```bash
-   pip install flask numpy pandas scikit-learn django django-cors-headers
-   ```
-
-3. **Install Node.js dependencies (for Next.js frontend)**
-   ```bash
-   cd web
-   npm install
-   cd ..
-   ```
-
-## 🏃‍♂️ How to Run
-
-### Option 1: Flask Application (Recommended for quick start)
-
+### 1. Clone the repository
 ```bash
-python app.py
+git clone https://github.com/nkrao8506/BookRecommenderSystem.git
+cd BookRecommenderSystem
 ```
 
-The application will be available at `http://localhost:5000`
-
-### Option 2: Django Backend + Next.js Frontend
-
-1. **Start Django backend**
-   ```bash
-   python manage.py migrate
-   python manage.py runserver
-   ```
-   Backend API will be available at `http://localhost:8000`
-
-2. **Start Next.js frontend** (in a new terminal)
-   ```bash
-   cd web
-   npm run dev
-   ```
-   Frontend will be available at `http://localhost:3000`
-
-## 📖 How It Works
-
-### Recommendation Algorithm
-
-1. **Data Processing**: The system uses collaborative filtering on book ratings data
-2. **Pivot Table**: Creates a user-book rating matrix
-3. **Similarity Calculation**: Computes cosine similarity between books
-4. **Recommendations**: When a user enters a book title, the system finds the 5 most similar books
-
-### API Endpoints (Flask)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Home page with top 50 popular books |
-| `/recommend` | GET | Recommendation form page |
-| `/recommend_books` | POST | Get book recommendations (form data: `user_input`) |
-
-## 📊 Dataset
-
-The project uses book rating datasets containing:
-- **Books.csv**: Book information (title, author, image URLs)
-- **Ratings.csv**: User ratings for books
-- **Users.csv**: User demographic information
-
-## 🎨 Screenshots
-
-### Home Page
-- Displays top 50 popular books with cover images, authors, votes, and ratings
-
-### Recommendation Page
-- Search box to enter a book title
-- Displays 5 similar book recommendations with cover images and authors
-
-## 🔧 Configuration
-
-### Flask Configuration
-Edit `app.py` to modify:
-- Debug mode settings
-- Port configuration
-- Template folder location
-
-### Django Configuration
-Edit `backend/settings.py` to modify:
-- Database settings
-- CORS configuration
-- Installed apps
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👤 Author
-
-Your Name - [your.email@example.com](mailto:your.email@example.com)
-
-## 🙏 Acknowledgments
-
-- Book dataset providers
-- Bootstrap for UI components
-- Flask and Django communities
-- Next.js team for the amazing framework
+### 2. Set up Virtual Environment
+```bash
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
 ```
 
-This README.md file has been saved to `BookRecommenderSystem/README.md`.
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configuration
+Create a `.env` file in the root directory and add your Gemini API key:
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+### 5. Initialize the Knowledge Base
+To populate the SQLite database with the initial dataset (`Books.csv` and `Ratings.csv`):
+```bash
+python load_data.py
+```
+*This will create a `knowledge_base.db` file in your project root.*
+
+### 6. Build the Vector Index
+Embed the catalog and build the FAISS index used for semantic retrieval:
+```bash
+python build_index.py
+```
+*This will create `book_vectors.index` and `book_vectors.ids.json`. The first run downloads the embedding model (~80MB). Re-run this any time the catalog changes, or if you switch embedding models.*
+
+### 7. Run the Application
+Start the FastAPI server:
+```bash
+uvicorn main:app --reload
+```
+The API will be available at `http://127.0.0.1:8000`.
+
+---
+
+## 📡 API Endpoints
+
+Once the server is running, you can interact with the API directly or visit **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)** for the interactive Swagger UI.
+
+### Core Endpoints:
+- `GET /` - Root status/welcome message.
+- `GET /books/popular` - Get a list of popular books.
+- `GET /users/{user_id}/recommendations` - Get personalized recommendations based on a user's reading history.
+- `GET /books/{book_id}/similar` - Find books similar to a specific title.
+- `POST /recommendations/free-text` - Request recommendations using natural language preferences.
+- `POST /books` - Add a new book to the Knowledge Base.
+- `POST /interactions` - Add a user rating/review interaction.
+
+---
+
+## 🧠 System Architecture Details
+
+This is a standard **RAG (Retrieval-Augmented Generation)** pipeline applied to recommendations:
+
+1. **Knowledge Base (`knowledge_base.py`):** Long-term storage. SQLite database (`knowledge_base.db`) holding book metadata and user interactions.
+2. **Embeddings (`embeddings.py`):** Turns a book's title/authors/genres/description (or a user's free-text query) into a normalized vector using a local sentence-transformers model.
+3. **Vector Store (`vector_store.py`):** A FAISS index mapping book vectors → book ids, persisted to disk. This is the "retrieval" half of RAG.
+4. **Indexing (`build_index.py`):** One-off/rerunnable script that embeds the full catalog from the Knowledge Base and writes the FAISS index.
+5. **Recommender Core (`recommender.py`):** Builds a query (from a user's liked books, free text, or a target book), retrieves the top semantically-similar candidates from the vector store, then hands that shortlist to the LLM to rerank and explain. This is the "generation/reasoning" half of RAG. If the index hasn't been built yet, it falls back to the old keyword/random candidate selection so the API doesn't break.
+6. **API Layer (`main.py`):** FastAPI application exposing clean, documented REST HTTP endpoints.
+
+**Why retrieval before generation matters:** an LLM given the *entire* catalog can't reason well and costs a fortune in tokens. Given a *random* sample, it can only rerank whatever happened to be sampled — most of the catalog is invisible to it. Semantic retrieval narrows the field to books that are actually relevant first, so the LLM's reasoning is spent on a shortlist worth reasoning about.

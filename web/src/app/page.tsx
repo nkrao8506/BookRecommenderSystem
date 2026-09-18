@@ -3,7 +3,7 @@ import BookCard from '@/components/BookCard';
 
 async function getPopularBooks() {
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/', {
+    const res = await fetch('http://127.0.0.1:8000/books/popular', {
       cache: 'no-store',
     });
     if (!res.ok) {
@@ -12,7 +12,7 @@ async function getPopularBooks() {
     return res.json();
   } catch (error) {
     console.error('Error fetching books:', error);
-    return { books: [] };
+    return [];
   }
 }
 
@@ -49,16 +49,14 @@ export default async function Home() {
               </h2>
             </div>
 
-            {data.books && data.books.length > 0 ? (
+            {Array.isArray(data) && data.length > 0 ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5">
-                {data.books.map((book: { title: string; author: string; image: string; votes: number; rating: number }, index: number) => (
+                {data.map((book: { title: string; book_id: string; rationale: string; image: string }, index: number) => (
                   <BookCard
-                    key={`${book.title}-${index}`}
+                    key={`${book.book_id}-${index}`}
                     title={book.title}
-                    author={book.author}
-                    image={book.image}
-                    votes={book.votes}
-                    rating={book.rating}
+                    author={book.rationale}
+                    image={book.image || 'https://via.placeholder.com/200x300?text=No+Cover'}
                     index={index}
                   />
                 ))}
