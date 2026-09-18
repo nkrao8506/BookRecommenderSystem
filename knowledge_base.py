@@ -97,6 +97,37 @@ class KnowledgeBase:
             ]
         return UserProfile(user_id=user_id, interactions=interactions)
 
+    def get_all_books(self) -> list[Book]:
+        """Used by the indexing step to embed every book in the KB. No limit/randomization -
+        the vector store needs the full catalog, not a sample of it."""
+        with self._get_conn() as conn:
+            cursor = conn.execute("SELECT * FROM books")
+            rows = cursor.fetchall()
+            return [
+                Book(
+                    id=row[0], title=row[1], authors=row[2], year=row[3],
+                    publisher=row[4], image_url=row[5], description=row[6],
+                    genres=json.loads(row[7]) if row[7] else None
+                ) for row in rows
+            ]
+
+    def get_books_by_ids(self, book_ids: list[str]) -> list[Book]:
+        """Fetch full Book records for a list of ids, preserving the given order.
+        Used after a vector search returns ranked ids and we need the metadata back."""
+        if not book_ids:
+            return []
+        by_id = {}
+        with self._get_conn() as conn:
+            placeholders = ",".join("?" for _ in book_ids)
+            cursor = conn.execute(f"SELECT * FROM books WHERE id IN ({placeholders})", book_ids)
+            for row in cursor.fetchall():
+                by_id[row[0]] = Book(
+                    id=row[0], title=row[1], authors=row[2], year=row[3],
+                    publisher=row[4], image_url=row[5], description=row[6],
+                    genres=json.loads(row[7]) if row[7] else None
+                )
+        return [by_id[bid] for bid in book_ids if bid in by_id]
+
     def search_books(self, query: str | None = None, limit: int = 50) -> list[Book]:
         # Simple exact text search for now, could use embeddings later
         with self._get_conn() as conn:

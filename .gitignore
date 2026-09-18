@@ -6,6 +6,7 @@
 .opencode
 .venv
 extensions/
+.python-version
 
 # Python
 __pycache__/
@@ -65,3 +66,12 @@ prompt.md
 
 # books database
 knowledge_base.db
+
+src/
+
+web\node_modules
+
+web/bun.lock
+
+book_vectors.ids.json
+book_vectors.index
