@@ -97,6 +97,13 @@ class KnowledgeBase:
             ]
         return UserProfile(user_id=user_id, interactions=interactions)
 
+    def get_all_user_ids(self) -> list[str]:
+        """Used by eval.py to build a holdout evaluation set across every user
+        with any recorded interactions."""
+        with self._get_conn() as conn:
+            cursor = conn.execute("SELECT DISTINCT user_id FROM interactions")
+            return [row[0] for row in cursor.fetchall()]
+
     def get_all_books(self) -> list[Book]:
         """Used by the indexing step to embed every book in the KB. No limit/randomization -
         the vector store needs the full catalog, not a sample of it."""
