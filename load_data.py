@@ -22,7 +22,7 @@ def load_data():
     print("Loading books...")
     # Read just a subset of books to start
     try:
-        books_df = pd.read_csv("Books.csv", dtype=str).head(100)
+        books_df = pd.read_csv("Books.csv", dtype=str).head(5000)
         for _, row in books_df.iterrows():
             book = Book(
                 id=_clean_cell(row.get('ISBN')) or "",
@@ -40,7 +40,7 @@ def load_data():
 
     print("Loading ratings...")
     try:
-        ratings_df = pd.read_csv("Ratings.csv").head(500)
+        ratings_df = pd.read_csv("Ratings.csv").head(20000)
         for _, row in ratings_df.iterrows():
             kb.add_interaction(
                 user_id=str(row['User-ID']),
